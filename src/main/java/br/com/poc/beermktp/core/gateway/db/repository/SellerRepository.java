@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface SellerRepository extends PagingAndSortingRepository<Seller, Long> {
-    @RestResource(exported = false)
+    @RestResource(path = "getByCode", rel = "getByCode")
     Optional<Seller> findByCode(String code);
 }
