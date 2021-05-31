@@ -15,7 +15,7 @@ public class RestConfig implements RepositoryRestConfigurer {
         config.exposeIdsFor(Seller.class);
         config.exposeIdsFor(Category.class);
         config.setBasePath("/api");
-        config.setDefaultPageSize(20);
+        config.setDefaultPageSize(4);
       }
 
 }
