@@ -1,27 +1,25 @@
 package br.com.poc.beermktp.core.config;
 
 import br.com.poc.beermktp.core.gateway.db.model.Category;
+import br.com.poc.beermktp.core.gateway.db.model.Highlight;
 import br.com.poc.beermktp.core.gateway.db.model.Product;
 import br.com.poc.beermktp.core.gateway.db.model.Seller;
 import br.com.poc.beermktp.core.gateway.db.repository.CategoryRepository;
+import br.com.poc.beermktp.core.gateway.db.repository.HighlightRepository;
 import br.com.poc.beermktp.core.gateway.db.repository.ProductRepository;
 import br.com.poc.beermktp.core.gateway.db.repository.SellerRepository;
 import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class CreateData implements CommandLineRunner {
@@ -29,12 +27,15 @@ public class CreateData implements CommandLineRunner {
     private final SellerRepository sellerRepository;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final HighlightRepository highlightRepository;
 
     @Autowired
-    public CreateData(SellerRepository sellerRepository, CategoryRepository categoryRepository, ProductRepository productRepository) {
+    public CreateData(SellerRepository sellerRepository, CategoryRepository categoryRepository,
+                      ProductRepository productRepository, HighlightRepository highlightRepository) {
         this.sellerRepository = sellerRepository;
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
+        this.highlightRepository = highlightRepository;
     }
 
     @Override
@@ -43,6 +44,7 @@ public class CreateData implements CommandLineRunner {
         buildSellers();
         buildCategories();
         buildProducts();
+        buildHighlights();
     }
 
     private void buildSellers() throws Exception {
@@ -81,12 +83,21 @@ public class CreateData implements CommandLineRunner {
                 });
     }
 
+    private void buildHighlights() throws Exception {
+        List<List<String>> records = readCSV("highlight.csv");
+        records.stream()
+                .skip(1)
+                .forEach(record -> {
+                    highlightRepository.save(Highlight.builder().imageUrl(record.get(0)).sku(record.get(1)).build());
+                });
+    }
+
     private List<List<String>> readCSV(String fileName) throws Exception {
         URL resource = getClass().getClassLoader().getResource(fileName);
         List<List<String>> records = new ArrayList<List<String>>();
-        try (CSVReader csvReader = new CSVReader(new FileReader(resource.toURI().getPath()))){
+        try (CSVReader csvReader = new CSVReader(new FileReader(resource.toURI().getPath()))) {
             String[] values = null;
-            while((values = csvReader.readNext()) != null) {
+            while ((values = csvReader.readNext()) != null) {
                 records.add(Arrays.asList(values));
             }
         }
