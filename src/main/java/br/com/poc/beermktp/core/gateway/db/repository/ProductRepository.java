@@ -18,7 +18,7 @@ public interface ProductRepository extends PagingAndSortingRepository<Product, L
     @RestResource(path = "getByCategory", rel = "getByCategory")
     Page<Product> findAllByCategoryCode(String categoryCode, Pageable pageable);
 
-    @RestResource(path = "getProductHighlights", rel = "getProductHighlights")
+    @RestResource(path = "getHighlights", rel = "getHighlights")
     @Query(nativeQuery = true, value = "SELECT * FROM T_PRODUCT order by RAND() limit 4")
     List<Product> getByRandom();
 }
